@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertitore Dollaro-Euro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+    <div class="max-w-md mx-auto mt-8">
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">💱 Convertitore Valute</h1>
+                <p class="text-gray-600 text-sm">Dollaro ↔ Euro</p>
+            </div>
+
+            <!-- Tasso di cambio display -->
+            <div class="bg-blue-50 rounded-lg p-3 mb-6 text-center">
+                <p class="text-sm text-blue-700">Tasso attuale: <span class="font-semibold">1 USD = 0.92 EUR</span></p>
+            </div>
+
+            <!-- Da USD a EUR -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">🇺🇸 Dollari (USD)</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <input 
+                        type="number" 
+                        id="usdInput" 
+                        placeholder="0.00"
+                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                        step="0.01"
+                        min="0"
+                    >
+                </div>
+            </div>
+
+            <!-- Freccia di conversione -->
+            <div class="flex justify-center mb-6">
+                <button 
+                    id="swapBtn"
+                    class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full transition-all duration-200 transform hover:scale-110"
+                    title="Scambia valute"
+                >
+                    ↕️
+                </button>
+            </div>
+
+            <!-- Da EUR a USD -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">🇪🇺 Euro (EUR)</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
+                    <input 
+                        type="number" 
+                        id="eurInput" 
+                        placeholder="0.00"
+                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                        step="0.01"
+                        min="0"
+                    >
+                </div>
+            </div>
+
+            <!-- Risultato -->
+            <div class="bg-green-50 rounded-lg p-4 mb-6">
+                <div class="text-center">
+                    <p class="text-sm text-green-700 mb-1">Risultato conversione:</p>
+                    <p id="result" class="text-xl font-bold text-green-800">Inserisci un importo</p>
+                </div>
+            </div>
+
+            <!-- Pulsanti rapidi -->
+            <div class="grid grid-cols-4 gap-2 mb-4">
+                <button class="quick-btn bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium transition-colors" data-value="10">$10</button>
+                <button class="quick-btn bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium transition-colors" data-value="50">$50</button>
+                <button class="quick-btn bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium transition-colors" data-value="100">$100</button>
+                <button class="quick-btn bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium transition-colors" data-value="500">$500</button>
+            </div>
+
+            <!-- Pulsante reset -->
+            <button 
+                id="resetBtn"
+                class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-medium transition-colors"
+            >
+                🗑️ Cancella tutto
+            </button>
+        </div>
+
+        <!-- Info aggiuntive -->
+        <div class="mt-4 text-center text-xs text-gray-500">
+            <p>I tassi di cambio sono indicativi e possono variare</p>
+        </div>
+    </div>
+
+    <script>
+        // Tassi di cambio (in un'app reale questi verrebbero da un'API)
+        const USD_TO_EUR = 0.92;
+        const EUR_TO_USD = 1.09;
+
+        const usdInput = document.getElementById('usdInput');
+        const eurInput = document.getElementById('eurInput');
+        const result = document.getElementById('result');
+        const swapBtn = document.getElementById('swapBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const quickBtns = document.querySelectorAll('.quick-btn');
+
+        let isConverting = false;
+
+        // Conversione da USD a EUR
+        usdInput.addEventListener('input', function() {
+            if (isConverting) return;
+            isConverting = true;
+            
+            const usdValue = parseFloat(this.value) || 0;
+            const eurValue = usdValue * USD_TO_EUR;
+            
+            eurInput.value = eurValue > 0 ? eurValue.toFixed(2) : '';
+            updateResult(usdValue, eurValue, 'USD', 'EUR');
+            
+            isConverting = false;
+        });
+
+        // Conversione da EUR a USD
+        eurInput.addEventListener('input', function() {
+            if (isConverting) return;
+            isConverting = true;
+            
+            const eurValue = parseFloat(this.value) || 0;
+            const usdValue = eurValue * EUR_TO_USD;
+            
+            usdInput.value = usdValue > 0 ? usdValue.toFixed(2) : '';
+            updateResult(eurValue, usdValue, 'EUR', 'USD');
+            
+            isConverting = false;
+        });
+
+        // Aggiorna il risultato
+        function updateResult(fromValue, toValue, fromCurrency, toCurrency) {
+            if (fromValue > 0) {
+                const fromSymbol = fromCurrency === 'USD' ? '$' : '€';
+                const toSymbol = toCurrency === 'USD' ? '$' : '€';
+                result.textContent = `${fromSymbol}${fromValue.toFixed(2)} = ${toSymbol}${toValue.toFixed(2)}`;
+            } else {
+                result.textContent = 'Inserisci un importo';
+            }
+        }
+
+        // Pulsante scambia valute
+        swapBtn.addEventListener('click', function() {
+            const usdValue = usdInput.value;
+            const eurValue = eurInput.value;
+            
+            usdInput.value = eurValue;
+            eurInput.value = usdValue;
+            
+            // Trigger conversion
+            if (usdInput.value) {
+                usdInput.dispatchEvent(new Event('input'));
+            } else if (eurInput.value) {
+                eurInput.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Pulsanti rapidi
+        quickBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const value = this.dataset.value;
+                usdInput.value = value;
+                usdInput.dispatchEvent(new Event('input'));
+            });
+        });
+
+        // Pulsante reset
+        resetBtn.addEventListener('click', function() {
+            usdInput.value = '';
+            eurInput.value = '';
+            result.textContent = 'Inserisci un importo';
+        });
+
+        // Animazione per i pulsanti rapidi
+        quickBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.add('transform', 'scale-95');
+                setTimeout(() => {
+                    this.classList.remove('transform', 'scale-95');
+                }, 100);
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98ab8c2d60b34c6c',t:'MTc1OTgyMDY5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
